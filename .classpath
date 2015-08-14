@@ -23,5 +23,11 @@
 	<classpathentry kind="lib" path="/Library/Frameworks/R.framework/Versions/3.1/Resources/library/rJava/jri/JRI.jar"/>
 	<classpathentry kind="lib" path="/Library/Frameworks/R.framework/Versions/3.1/Resources/library/rJava/jri/JRIEngine.jar"/>
 	<classpathentry kind="lib" path="/Library/Frameworks/R.framework/Versions/3.1/Resources/library/rJava/jri/REngine.jar"/>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

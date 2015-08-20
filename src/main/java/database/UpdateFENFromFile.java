@@ -33,7 +33,7 @@ public class UpdateFENFromFile {
 		
 		PreparedStatement updateFEN = connexion.prepareStatement("UPDATE FEN set id = ?, log = ? WHERE id = ?");
 		
-		InputStream is = new FileInputStream(new File("resources/9999"));
+		InputStream is = new FileInputStream(new File("resources/6000"));
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(is));
 		String line;

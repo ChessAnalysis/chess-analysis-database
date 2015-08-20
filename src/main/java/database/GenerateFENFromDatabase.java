@@ -47,7 +47,7 @@ public class GenerateFENFromDatabase {
 		stmt.execute("ALTER TABLE Move ENABLE KEYS");
 		stmt.execute("SET GLOBAL FOREIGN_KEY_CHECKS=1");
 		stmt.close();
-		//initB();
+		initB();
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class GenerateFENFromDatabase {
 		String token;
 		String currentFEN;
 		
-		ResultSet rs = st.executeQuery("select id, movesSAN from Game");
+		ResultSet rs = st.executeQuery("select id, movesSAN from Game WHERE Game.id = 4784919");
 		while (rs.next()) {
 			count++;
 			if((count%10000)==0) {

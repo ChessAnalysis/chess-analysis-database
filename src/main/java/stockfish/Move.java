@@ -19,7 +19,14 @@ public class Move extends ArrayList<RowLog> {
 	}
 	
 	public RowLog getBestScore() {
-		return getByDepth(20).get(0);
+		return getBestScore(20);
+	}
+	
+	public RowLog getBestScore(int i) {
+		if(getByDepth(i).size() > 0)
+			return getByDepth(i).get(0);
+		else
+			return new RowLog();
 	}
 
 	public Move getByPV(int pv) {

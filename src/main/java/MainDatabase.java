@@ -10,8 +10,10 @@ import stockfish.ParseDatabase;
 import jline.console.ConsoleReader;
 import jline.internal.Log;
 import config.ConfigSQL;
+import database.GenerateFENFromDatabase;
 import database.InsertECOToDatabase;
 import database.InsertPGNToDatabase;
+import database.UpdateFENFromFile;
 
 /**
  */
@@ -30,7 +32,7 @@ public class MainDatabase {
 	public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException, InterruptedException, AmbiguousChessMoveException, IllegalMoveException {
 
 		ConfigSQL connexion= new ConfigSQL("localhost");
-		new ParseDatabase(connexion);
+		//new ParseDatabase(connexion);
 		
 		// 1 - INSERT OPENING INTO DATABASE
 		/*Log.info("[1] INSERT OPENING INTO DATABASE");
@@ -57,6 +59,8 @@ public class MainDatabase {
 				new InsertPGNToDatabase(file.getAbsolutePath(), connexion);
 			}
 		} */
+		
+		
 		
 		// 4 - GENERATE MOVES FROM DATABASE
 		//new GenerateFENFromDatabase(connexion, 0);
@@ -108,5 +112,12 @@ public class MainDatabase {
 		for(int i = MIN; i < MAX; i++) {
 			new GenerateFENFromDatabase(connexion, i);
 		}*/
+		
+		
+		//new InsertPGNToDatabase(new File("./resources/file.pgn").getAbsolutePath(), connexion);
+		//new GenerateFENFromDatabase(connexion, 0);
+		//new UpdateFENFromFile(connexion);
+		//new AnalyseFromDatabase();
+		new ParseDatabase(connexion);
 	}
 }

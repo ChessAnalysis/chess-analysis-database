@@ -8,12 +8,12 @@ import jline.internal.Log;
 
 public class Moves extends ArrayList<Move> {
 	
-	public List<RowLog> getBestScores() {
+	public List<RowLog> getBestScores(int i) {
 		Iterator<Move> it = this.iterator();
 		List<RowLog> scores = new ArrayList<RowLog>();
 		
 		while(it.hasNext()) {
-			scores.add(it.next().getBestScore());
+			scores.add(it.next().getBestScore(i));
 		}
 		return scores;
 	}

@@ -43,8 +43,8 @@ public class InsertPGNToDatabase {
 	private PreparedStatement insertGame = null;
 	private ResultSet rs = null;
 
-	static int idEvent = 3;
-	static int idPlayer = 3;
+	static int idEvent = 10100;
+	static int idPlayer = 10100;
 
 
 	private static HashMap<String, Integer> players = new HashMap<String, Integer>();
@@ -371,7 +371,7 @@ public class InsertPGNToDatabase {
 				if (!line.isEmpty()) {
 					buffer.append(line + "\r\n");
 
-					if (line.charAt(0) == '+') {
+					if (line.charAt(0) == '1') {
 						pgnGames.add(buffer.toString());
 						buffer.delete(0, buffer.length());
 					}

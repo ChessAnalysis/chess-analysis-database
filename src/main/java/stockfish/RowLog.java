@@ -8,7 +8,10 @@ public class RowLog {
 	
 
 	public RowLog() {
-		// TODO Auto-generated constructor stub
+		this.multipv = 1;
+		this.scoreResult = 0;
+		this.scoreType = "mate";
+		this.move = "";
 	}
 	
 	public RowLog(String move) {

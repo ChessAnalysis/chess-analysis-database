@@ -36,7 +36,7 @@ public class ParseLogFile {
 
 	public ParseLogFile() throws NumberFormatException, IOException {
 		
-		Moves moves = new Moves();
+		Game moves = new Game();
 		
 		BufferedReader bf = new BufferedReader(new InputStreamReader(new FileInputStream(new File("./resources/log.txt"))));
 		String line = "";
@@ -49,7 +49,7 @@ public class ParseLogFile {
 				if(!lines[i].trim().isEmpty() && !lines[i].trim().startsWith("bestmove") && !lines[i].trim().contains("mate 0")) {
 					StringTokenizer st = new StringTokenizer(lines[i].trim(), " ");
 					int k=0;
-					RowLog depth = new RowLog();
+					MoveDepth depth = new MoveDepth();
 					while(st.hasMoreTokens()) {
 						String t = st.nextToken();
 						switch(k) {
@@ -71,8 +71,8 @@ public class ParseLogFile {
 		StringBuilder sb = new StringBuilder("FEN;d19;d20\n");
 		while(it.hasNext()) {
 			Move move = it.next();
-			int score19 = move.getBestScore(19).getScoreResult();
-			int score20 = move.getBestScore(20).getScoreResult();
+			int score19 = move.getMove(19).getScoreResult();
+			int score20 = move.getMove(20).getScoreResult();
 			
 			sb.append(move.getMove() + ";" + score19 + ";" + score20 + "\n");	
 		}

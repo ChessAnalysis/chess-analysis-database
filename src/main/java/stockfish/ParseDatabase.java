@@ -27,7 +27,7 @@ public class ParseDatabase {
 
 	private Connection connexion;
 
-	HashMap<Integer, Moves> games;
+	HashMap<Integer, Game> games;
 	
 	public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
 		ConfigSQL connexion= new ConfigSQL("localhost");
@@ -49,8 +49,8 @@ public class ParseDatabase {
 		while(itKeys.hasNext()) {
 			Integer idGame = itKeys.next();
 			for(int depth = 1; depth < 21; depth++) {
-				Moves moves = games.get(idGame);
-				List<RowLog> scores = moves.getBestScores(depth);
+				Game moves = games.get(idGame);
+				List<MoveDepth> scores = moves.getMoves(depth);
 				analyseScores(idGame, scores, depth);
 			}
 		}
@@ -58,13 +58,13 @@ public class ParseDatabase {
 		System.exit(0);
 	}
 
-	private void analyseScores(int idGame, List<RowLog> scores, int depth) throws IOException {
+	private void analyseScores(int idGame, List<MoveDepth> scores, int depth) throws IOException {
 
 		String SEPARATOR = "\t";
 		SEPARATOR = ",";
 
 		StringBuilder sb = new StringBuilder("Ply" + SEPARATOR + "Move" + SEPARATOR + "White" + SEPARATOR + "Black" + SEPARATOR + "Score" + SEPARATOR + "Eval" + SEPARATOR + "Comment\n");
-		Iterator<RowLog> it = scores.iterator();
+		Iterator<MoveDepth> it = scores.iterator();
 
 		int count = 0;
 		Integer previous = 0;
@@ -72,7 +72,7 @@ public class ParseDatabase {
 
 
 		while(it.hasNext()) {
-			RowLog tmpRow = it.next();
+			MoveDepth tmpRow = it.next();
 			if (tmpRow.getScoreType().equals("mate")) {
 				if((count%2)==0)
 					sb.append(count + SEPARATOR + "[" + ((count/2)+1) + "]" + SEPARATOR + tmpRow.getMove() + SEPARATOR + SEPARATOR + SEPARATOR + SEPARATOR + "#" + tmpRow.getScoreResult() + "#\n");
@@ -145,7 +145,7 @@ public class ParseDatabase {
 	}
 
 	private void getGames() throws SQLException {
-		games = new HashMap<Integer, Moves>();
+		games = new HashMap<Integer, Game>();
 		PreparedStatement selectGames = connexion.prepareStatement("SELECT id FROM Game WHERE id = 4784910");
 
 		ResultSet rs = selectGames.executeQuery();
@@ -157,11 +157,11 @@ public class ParseDatabase {
 		}
 	}
 
-	private Moves getMoves(Integer idGame) throws SQLException {
+	private Game getMoves(Integer idGame) throws SQLException {
 		PreparedStatement selectMoves = connexion.prepareStatement("SELECT Move.move, Move.halfMove, FEN.log FROM FEN, Move WHERE Move.idGame = '" + idGame + "' AND Move.idFEN = FEN.id ORDER BY Move.halfMove ASC");
 		ResultSet rs = selectMoves.executeQuery();
 
-		Moves moves = new Moves();
+		Game moves = new Game();
 
 		while (rs.next()) {
 			int idMove = rs.getInt(2);
@@ -174,7 +174,7 @@ public class ParseDatabase {
 				if(!lines[i].trim().isEmpty() && !lines[i].trim().startsWith("bestmove") && !lines[i].trim().contains("mate 0")) {
 					StringTokenizer st = new StringTokenizer(lines[i].trim(), " ");
 					int k=0;
-					RowLog depth = new RowLog(rs.getString(1));
+					MoveDepth depth = new MoveDepth(rs.getString(1));
 					while(st.hasMoreTokens()) {
 						String t = st.nextToken();
 						switch(k) {

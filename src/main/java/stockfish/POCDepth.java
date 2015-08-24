@@ -24,7 +24,7 @@ import jline.internal.Log;
 public class POCDepth {
 
 	private Connection connexion;
-	HashMap<Integer, Moves> games;
+	HashMap<Integer, Game> games;
 	private final int LIMIT = 1000;
 	private final int OFFSET = 0;
 	private final int DEPTH_MIN = 1;
@@ -54,9 +54,9 @@ public class POCDepth {
 			Integer idGame = itKeys.next();
 			sb.append(idGame);
 			for(int depth = DEPTH_MIN + 1; depth <= DEPTH_MAX; depth++) {
-				Moves moves = games.get(idGame);
-				List<RowLog> depth1 = moves.getBestScores(depth-1);
-				List<RowLog> depth2 = moves.getBestScores(depth);
+				Game moves = games.get(idGame);
+				List<MoveDepth> depth1 = moves.getMoves(depth-1);
+				List<MoveDepth> depth2 = moves.getMoves(depth);
 				int err = analyseDepth(idGame, depth1, depth2);
 				sb.append(";" + err);
 			}
@@ -67,16 +67,16 @@ public class POCDepth {
 		System.exit(0);
 	}
 
-	private int analyseDepth(int idGame, List<RowLog> gameD1, List<RowLog> gameD2) throws IOException {
+	private int analyseDepth(int idGame, List<MoveDepth> gameD1, List<MoveDepth> gameD2) throws IOException {
 
-		Iterator<RowLog> it1 = gameD1.iterator();
-		Iterator<RowLog> it2 = gameD2.iterator();
+		Iterator<MoveDepth> it1 = gameD1.iterator();
+		Iterator<MoveDepth> it2 = gameD2.iterator();
 		
 		int erreurQuadratique = 0;
 
 		while(it1.hasNext()) {
-			RowLog tmpRow1 = it1.next();
-			RowLog tmpRow2 = it2.next();
+			MoveDepth tmpRow1 = it1.next();
+			MoveDepth tmpRow2 = it2.next();
 			
 			if (!tmpRow1.getScoreType().equals("mate") && !tmpRow2.getScoreType().equals("mate")) {
 				erreurQuadratique += Math.pow((tmpRow1.getScoreResult() - tmpRow2.getScoreResult()), 2);
@@ -88,7 +88,7 @@ public class POCDepth {
 	}
 
 	private void getGames() throws SQLException {
-		games = new HashMap<Integer, Moves>();
+		games = new HashMap<Integer, Game>();
 		PreparedStatement selectGames = connexion.prepareStatement("SELECT id FROM Game LIMIT " + LIMIT + " OFFSET " + OFFSET);
 
 		ResultSet rs = selectGames.executeQuery();
@@ -100,11 +100,11 @@ public class POCDepth {
 		}
 	}
 
-	private Moves getMoves(Integer idGame) throws SQLException {
+	private Game getMoves(Integer idGame) throws SQLException {
 		PreparedStatement selectMoves = connexion.prepareStatement("SELECT Move.move, Move.halfMove, FEN.log FROM FEN, Move WHERE Move.idGame = '" + idGame + "' AND Move.idFEN = FEN.id ORDER BY Move.halfMove ASC");
 		ResultSet rs = selectMoves.executeQuery();
 
-		Moves game = new Moves();
+		Game game = new Game();
 
 		while (rs.next()) {
 			int idMove = rs.getInt(2);
@@ -117,7 +117,7 @@ public class POCDepth {
 				if(!lines[i].trim().isEmpty() && !lines[i].trim().startsWith("bestmove") && !lines[i].trim().contains("mate 0")) {
 					StringTokenizer st = new StringTokenizer(lines[i].trim(), " ");
 					int k=0;
-					RowLog depth = new RowLog(rs.getString(1));
+					MoveDepth depth = new MoveDepth(rs.getString(1));
 					while(st.hasMoreTokens()) {
 						String t = st.nextToken();
 						switch(k) {

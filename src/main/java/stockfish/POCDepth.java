@@ -23,25 +23,21 @@ import jline.internal.Log;
  */
 public class POCDepth {
 
-	private Connection connexion;
-	HashMap<Integer, Game> games;
-	private final int LIMIT = 1000;
+	ListGames games;
+	GamesCollector collector;
+	private final int LIMIT = 10;
 	private final int OFFSET = 0;
-	private final int DEPTH_MIN = 1;
-	private final int DEPTH_MAX = 20;
+	private int DEPTH_MIN = 1;
+	private int DEPTH_MAX = 20;
 	
 	public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
-		ConfigSQL connexion= new ConfigSQL("localhost");
-		new POCDepth(connexion);
+		new POCDepth();
 	}
 
-	public POCDepth(ConfigSQL config) throws ClassNotFoundException, SQLException, IOException {
+	public POCDepth() throws ClassNotFoundException, SQLException, IOException {
 
-		Class.forName(config.getDriver());
-		this.connexion = DriverManager.getConnection(config.getUrl() + config.getDb() + "?user=" + config.getUser() + "&password=" + config.getPass() + "&rewriteBatchedStatements=true");
-		this.connexion.setAutoCommit(true);
-
-		getGames();
+		collector = new GamesCollector("diverse", LIMIT, OFFSET);
+		games = collector.getGames();
 
 		Set<Integer> keys = games.keySet();
 		Log.info(keys);
@@ -52,89 +48,44 @@ public class POCDepth {
 
 		while(itKeys.hasNext()) {
 			Integer idGame = itKeys.next();
-			sb.append(idGame);
+			sb.append(idGame + ";");
 			for(int depth = DEPTH_MIN + 1; depth <= DEPTH_MAX; depth++) {
-				Game moves = games.get(idGame);
-				List<MoveDepth> depth1 = moves.getMoves(depth-1);
-				List<MoveDepth> depth2 = moves.getMoves(depth);
-				int err = analyseDepth(idGame, depth1, depth2);
+				Game game = games.get(idGame);
+				Game game_d1 = game.getByDepth(depth-1);
+				Game game_d2 = game.getByDepth(depth);
+				int err = analyseDepth(idGame, game_d1, game_d2);
 				sb.append(";" + err);
 			}
 			sb.append("\n");
 		}
+		
 		Files.write(sb, new File("resources/comparativeDepth.csv"), Charset.defaultCharset());
 
 		System.exit(0);
 	}
 
-	private int analyseDepth(int idGame, List<MoveDepth> gameD1, List<MoveDepth> gameD2) throws IOException {
+	private int analyseDepth(int idGame, Game game_d1, Game game_d2) throws IOException {
 
-		Iterator<MoveDepth> it1 = gameD1.iterator();
-		Iterator<MoveDepth> it2 = gameD2.iterator();
+		Iterator<Move> it1 = game_d1.iterator();
+		Iterator<Move> it2 = game_d2.iterator();
 		
 		int erreurQuadratique = 0;
 
 		while(it1.hasNext()) {
-			MoveDepth tmpRow1 = it1.next();
-			MoveDepth tmpRow2 = it2.next();
-			
-			if (!tmpRow1.getScoreType().equals("mate") && !tmpRow2.getScoreType().equals("mate")) {
-				erreurQuadratique += Math.pow((tmpRow1.getScoreResult() - tmpRow2.getScoreResult()), 2);
+			Move currentMove1 = it1.next();
+			Move currentMove2 = it2.next();
+			if(currentMove1.size() > 0 && currentMove2.size() > 0) {
+				MoveDepth currentMoveDepth1 = currentMove1.get(0);
+				MoveDepth currentMoveDepth2 = currentMove2.get(0);
+				
+				if (!currentMoveDepth1.isMate() && !currentMoveDepth2.isMate()) {
+					erreurQuadratique += Math.pow((currentMoveDepth1.getScore() - currentMoveDepth2.getScore()), 2);
+				}
 			}
 		}
 		
 		return erreurQuadratique;
 
-	}
-
-	private void getGames() throws SQLException {
-		games = new HashMap<Integer, Game>();
-		PreparedStatement selectGames = connexion.prepareStatement("SELECT id FROM Game LIMIT " + LIMIT + " OFFSET " + OFFSET);
-
-		ResultSet rs = selectGames.executeQuery();
-		Log.info("SELECT GAMES");
-		while (rs.next()) {
-			int id = rs.getInt(1);
-			Log.info(id);
-			games.put(id, getMoves(id));
-		}
-	}
-
-	private Game getMoves(Integer idGame) throws SQLException {
-		PreparedStatement selectMoves = connexion.prepareStatement("SELECT Move.move, Move.halfMove, FEN.log FROM FEN, Move WHERE Move.idGame = '" + idGame + "' AND Move.idFEN = FEN.id ORDER BY Move.halfMove ASC");
-		ResultSet rs = selectMoves.executeQuery();
-
-		Game game = new Game();
-
-		while (rs.next()) {
-			int idMove = rs.getInt(2);
-			String log = rs.getString(3);
-
-			Move move = new Move(rs.getString(1));
-
-			String[] lines = log.split("\\.");
-			for(int i = 0 ; i < lines.length ; i++) {
-				if(!lines[i].trim().isEmpty() && !lines[i].trim().startsWith("bestmove") && !lines[i].trim().contains("mate 0")) {
-					StringTokenizer st = new StringTokenizer(lines[i].trim(), " ");
-					int k=0;
-					MoveDepth depth = new MoveDepth(rs.getString(1));
-					while(st.hasMoreTokens()) {
-						String t = st.nextToken();
-						switch(k) {
-						case 2 : depth.setDepth(Integer.valueOf(t)); break;
-						case 4 : depth.setSeldepth(Integer.valueOf(t)); break;
-						case 6 : depth.setMultipv(Integer.valueOf(t)); break;
-						case 8 : depth.setScoreType(t); break;
-						case 9 : depth.setScoreResult(Integer.valueOf(t)); break;
-						}
-						k++;
-					}
-					move.add(depth);
-				}
-			}
-			game.add(move);
-		}
-		return game;
 	}
 
 }

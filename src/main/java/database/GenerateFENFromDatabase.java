@@ -17,6 +17,7 @@ import java.sql.Statement;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import jline.internal.Log;
 import config.ConfigSQL;
 
 
@@ -143,12 +144,13 @@ public class GenerateFENFromDatabase {
 		String token;
 		String currentFEN;
 		
-		ResultSet rs = st.executeQuery("select id, movesSAN from Game WHERE Game.id = 4784919");
+		ResultSet rs = st.executeQuery("select id, movesSAN from Game");
 		while (rs.next()) {
 			count++;
 			if((count%10000)==0) {
 				System.out.println(count + "...");
 				insertMove.executeBatch();
+				insertFEN.executeBatch();
 			}
 			board = new ChessBoard();
 			
@@ -157,7 +159,6 @@ public class GenerateFENFromDatabase {
 
 			stoken = new StringTokenizer(moves);
 			while (stoken.hasMoreTokens() && stoken.countTokens() != 1) {
-				
 				token = stoken.nextToken();
 				if(!token.contains(".")) {
 					move = san.stringToMove(board, token);
@@ -182,6 +183,8 @@ public class GenerateFENFromDatabase {
 		startTimeParsed = System.nanoTime();
 		insertMove.executeBatch();
 		insertMove.close();
+		insertFEN.executeBatch();
+		insertFEN.close();
 		connexion.close();
 		
 		System.out.println("Inserted in " + ((System.nanoTime() - startTimeParsed)/1000000) + " ms.");

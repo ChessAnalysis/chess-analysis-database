@@ -43,8 +43,8 @@ public class InsertPGNToDatabase {
 	private PreparedStatement insertGame = null;
 	private ResultSet rs = null;
 
-	static int idEvent = 10100;
-	static int idPlayer = 10100;
+	static int idEvent = 0;
+	static int idPlayer = 0;
 
 
 	private static HashMap<String, Integer> players = new HashMap<String, Integer>();
@@ -213,11 +213,7 @@ public class InsertPGNToDatabase {
 					}
 				} else {
 					if (!line.isEmpty()) {
-						if(line.charAt(0) == '-') {
-							movesSAN.append(line.substring(1) + " ");
-						} else if (line.charAt(0) == '+') {
-							movesUCI.append(line.substring(1) + " ");
-						}
+						movesSAN.append(line + " ");
 					}
 				}
 			}
@@ -230,7 +226,7 @@ public class InsertPGNToDatabase {
 			ecoId = getOpening(openingEco, openingName, openingVariation);
 			dateSql = new java.sql.Date(date.getTime());
 		} catch (Exception e) {
-			Log.error("Date parse " + date + " " + e); 
+			//Log.error("Date parse " + date + " " + e); 
 			dateSql = null;
 		}
 
@@ -269,7 +265,7 @@ public class InsertPGNToDatabase {
 			String openingVariation) {
 		if(openings.containsKey(openingEco+"/"+openingName+"/"+openingVariation))
 			return openings.get(openingEco+"/"+openingName+"/"+openingVariation);
-		return 1;
+		return 2017;
 	}
 
 
@@ -371,7 +367,8 @@ public class InsertPGNToDatabase {
 				if (!line.isEmpty()) {
 					buffer.append(line + "\r\n");
 
-					if (line.charAt(0) == '1') {
+					if(line.endsWith("1-0") || line.endsWith("0-1") || line.endsWith("1/2-1/2")) {
+						Log.info(buffer.toString());
 						pgnGames.add(buffer.toString());
 						buffer.delete(0, buffer.length());
 					}

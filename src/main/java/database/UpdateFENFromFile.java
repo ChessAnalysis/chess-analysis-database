@@ -26,18 +26,25 @@ public class UpdateFENFromFile {
 		Class.forName(config.getDriver());
 		this.connexion = DriverManager.getConnection(config.getUrl() + config.getDb() + "?user=" + config.getUser() + "&password=" + config.getPass() + "&rewriteBatchedStatements=true");
 		this.connexion.setAutoCommit(true);
-		init();
+		init("");
 	}
 	
-	public void init() throws IOException, InterruptedException, SQLException, AmbiguousChessMoveException, IllegalMoveException {
+	public UpdateFENFromFile(String absolutePath, ConfigSQL config) throws ClassNotFoundException, SQLException, AmbiguousChessMoveException, IllegalMoveException, IOException, InterruptedException {
+		Class.forName(config.getDriver());
+		this.connexion = DriverManager.getConnection(config.getUrl() + config.getDb() + "?user=" + config.getUser() + "&password=" + config.getPass() + "&rewriteBatchedStatements=true");
+		this.connexion.setAutoCommit(true);
+		init(absolutePath);
+	}
+
+	public void init(String absolutePath) throws IOException, InterruptedException, SQLException, AmbiguousChessMoveException, IllegalMoveException {
 		
 		PreparedStatement updateFEN = connexion.prepareStatement("UPDATE FEN set id = ?, log = ? WHERE id = ?");
 		
-		InputStream is = new FileInputStream(new File("resources/6000"));
+		InputStream is = new FileInputStream(new File(absolutePath));
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(is));
 		String line;
-		while ((line = br.readLine()) != null) {
+		while ((line = br.readLine()) != null && !line.trim().isEmpty()) {
 			String[] split = line.split("\t");
 			String currentFEN = split[0];
 			String log = split[1];

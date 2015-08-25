@@ -12,3 +12,7 @@ resources/5000
 resources/6000 - copie
 
 resources/6000
+
+*.csv
+
+*.png

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 
-import stockfish.ParseDatabase;
+import stockfish.POCEvolutionScore;
 import jline.console.ConsoleReader;
 import jline.internal.Log;
 import config.ConfigSQL;
@@ -31,7 +31,7 @@ public class MainDatabase {
 	 */
 	public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException, InterruptedException, AmbiguousChessMoveException, IllegalMoveException {
 
-		ConfigSQL connexion= new ConfigSQL("localhost");
+		ConfigSQL connexion= new ConfigSQL("diverse");
 		//new ParseDatabase(connexion);
 		
 		// 1 - INSERT OPENING INTO DATABASE
@@ -114,10 +114,24 @@ public class MainDatabase {
 		}*/
 		
 		
-		//new InsertPGNToDatabase(new File("./resources/file.pgn").getAbsolutePath(), connexion);
+		//new InsertPGNToDatabase(new File("./resources/politcup15.pgn").getAbsolutePath(), connexion);
 		//new GenerateFENFromDatabase(connexion, 0);
 		//new UpdateFENFromFile(connexion);
 		//new AnalyseFromDatabase();
-		new ParseDatabase(connexion);
+		//new ParseDatabase(connexion);
+		
+		String[] filesName = new File("/Users/fesnault/Documents/FEN").list();
+		File[] files = new File[filesName.length];
+		for(int i = 0; i < filesName.length; i++) {
+			files[i] = new File("/Users/fesnault/Documents/FEN/" + filesName[i]);
+		}
+		for(File file: files) {
+			if (!file.exists() || file.isHidden() || file.getName().equals(".DS_Store")) {
+				Log.warn("Le fichier " + file.getName() + " n'existe pas.");
+			} else {
+				Log.info("> " + file.getAbsolutePath());
+				new UpdateFENFromFile(file.getAbsolutePath(), connexion);
+			}
+		} 
 	}
 }

@@ -12,15 +12,15 @@ public class POCBlunderMat {
 
 	ListGames games;
 	GamesCollector collector;
-	private final int LIMIT = 1000;
-	private final int OFFSET = 1000;
+	private final int LIMIT = 2000;
+	private final int OFFSET = 0;
 
 	public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
 		new POCBlunderMat();
 	}
 
 	public POCBlunderMat() throws ClassNotFoundException, SQLException, IOException {
-		collector = new GamesCollector("diverse", LIMIT, OFFSET);
+		collector = new GamesCollector("localhost", LIMIT, OFFSET);
 		games = collector.getGames();
 
 		Set<Integer> keys = games.keySet();

@@ -58,8 +58,8 @@ public class MainDatabase {
 			}
 		} */
 		
-		 Log.info("[4] Generate Move and FEN into database from Game table");
-		new GenerateFENFromDatabase(connexion, 0); 
+		/*Log.info("[4] Generate Move and FEN into database from Game table");
+		new GenerateFENFromDatabase(connexion, 0);*/
 		
 		/* Log.info("[5] Analyse fen/output with Igrida and Stockfish chess engine"); */
 		

@@ -103,17 +103,24 @@ public class InsertPGNToDatabase {
 		ResultSet rs = st.executeQuery("SELECT id, name FROM Player");
 		while (rs.next()) {
 			players.put(rs.getString("name"), rs.getInt("id"));
+			idPlayer++;
+		}
+		
+		if(idPlayer==1) {
+			getPlayer("Unkown", players);
 		}
 
 		rs = st.executeQuery("SELECT id, name, city FROM Event");
 		while (rs.next()) {
 			events.put(rs.getString("name")+"/"+rs.getString("city"), rs.getInt("id"));
+			idEvent++;
 		}
 
 		rs = st.executeQuery("SELECT id, eco, opening, variation FROM Opening");
 		while(rs.next()) {
 			openings.put(rs.getString("eco")+"/"+rs.getString("opening")+"/"+rs.getString("variation"), rs.getInt("id"));
 		}
+		
 
 		selectEvent = connexion.prepareStatement("SELECT id FROM Event WHERE name = ? AND city = ? LIMIT 1");
 		insertEvent = connexion.prepareStatement("INSERT INTO Event (name, city, id) VALUES (?,?,?)");
@@ -265,7 +272,7 @@ public class InsertPGNToDatabase {
 			String openingVariation) {
 		if(openings.containsKey(openingEco+"/"+openingName+"/"+openingVariation))
 			return openings.get(openingEco+"/"+openingName+"/"+openingVariation);
-		return 2017;
+		return 1;
 	}
 
 

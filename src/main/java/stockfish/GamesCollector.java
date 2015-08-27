@@ -11,6 +11,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import config.ConfigSQL;
 import jline.internal.Log;
@@ -56,14 +58,19 @@ public class GamesCollector {
 		connexion.setAutoCommit(true);
 
 		ListGames games = new ListGames();
-		PreparedStatement selectGames = connexion.prepareStatement("SELECT id FROM Game LIMIT " + limit + " OFFSET " + offset);
+		PreparedStatement selectGames = connexion.prepareStatement("SELECT g.id, g.totalPlyCount, p1.name, g.whiteElo, p2.name, g.blackElo FROM Game g, Player p1, Player p2 WHERE g.id < 50000 AND g.whiteElo > 2500 AND g.blackElo > 2500 AND g.whiteId = p1.id AND g.blackId = p2.id LIMIT " + limit + " OFFSET " + offset);
 
 		ResultSet rs = selectGames.executeQuery();
 		Log.info("SELECT GAMES");
 		while (rs.next()) {
 			int id = rs.getInt(1);
+			int totalPlyCount = rs.getInt(2);
+			String white = rs.getString(3) + " (" + rs.getInt(4) + ")";
+			String black = rs.getString(5) + " (" + rs.getInt(6) + ")";
+			Game game = new Game(id, totalPlyCount, white, black);
+			game.addAll(addMoves(id, totalPlyCount));
 			Log.info(id);
-			games.put(id, getMoves(id));
+			games.put(id, game);
 		}
 		
 		if(!fileExists) {
@@ -80,41 +87,42 @@ public class GamesCollector {
 		return games;
 	}
 
-	private Game getMoves(Integer idGame) throws SQLException {
-		java.sql.Statement nbPly = connexion.createStatement();
-		ResultSet rs1 = nbPly.executeQuery("SELECT totalPlyCount FROM Game WHERE id = '" + idGame + "'");
-		rs1.next();
-		int totalPlyCount = rs1.getInt(1);
+	private List<Move> addMoves(Integer idGame, int totalPlyCount) throws SQLException {
 
 		PreparedStatement selectMoves = connexion.prepareStatement("SELECT Move.move, Move.halfMove, FEN.id, Move.halfMove, FEN.log FROM FEN, Move WHERE Move.idGame = '" + idGame + "' AND Move.idFEN = FEN.id ORDER BY Move.halfMove ASC LIMIT " + totalPlyCount);
 		ResultSet rs = selectMoves.executeQuery();
 
-		Game game = new Game(idGame, totalPlyCount);
+		List<Move> moves = new ArrayList<Move>();
 
 		while (rs.next()) {
 			String log = rs.getString(5);
-			Move move = new Move(rs.getString(1), Integer.valueOf(rs.getString(2)), rs.getString(3));
-
-			String[] lines = log.split("\\.");
-			for(int i = 0 ; i < lines.length ; i++) {
-				if(lines[i].trim().startsWith("bestmove") || lines[i].trim().isEmpty() || lines[i].contains("/")) {
-					// Do nothing
-				} else if (lines[i].equalsIgnoreCase("info depth 0 score mate 0")) {
-					move.add(new MoveDepth(true));
-				} else {
-					String[] split = lines[i].trim().split(" ");
-					MoveDepth currentMove = new MoveDepth(Integer.valueOf(split[2]), Integer.valueOf(split[6]), Integer.valueOf(split[9]));
-					if(split[8].equals("mate")) {
-						currentMove.setMate(true);
+			if(log != null && !log.trim().isEmpty()) {
+				Move move = new Move(rs.getString(1), Integer.valueOf(rs.getString(2)), rs.getString(3));
+	
+				String[] lines = log.split("\\.");
+				for(int i = 0 ; i < lines.length ; i++) {
+					if(lines[i].trim().startsWith("bestmove") || lines[i].trim().isEmpty() || lines[i].contains("/")) {
+						// Do nothing
+					} else if (lines[i].equalsIgnoreCase("info depth 0 score mate 0")) {
+						move.add(new MoveDepth(true));
+					} else if (lines[i].equalsIgnoreCase("info depth 0 score cp 0")) {
+						move.add(new MoveDepth(false));
+					} else {
+						String[] split = lines[i].trim().split(" ");
+						Log.info(lines[i]);
+						MoveDepth currentMove = new MoveDepth(Integer.valueOf(split[2]), Integer.valueOf(split[6]), Integer.valueOf(split[9]));
+						if(split[8].equals("mate")) {
+							currentMove.setMate(true);
+						}
+						split = lines[i].split(" pv ");
+						currentMove.setMoves(split[1]);
+						move.add(currentMove);
 					}
-					split = lines[i].split(" pv ");
-					currentMove.setMoves(split[1]);
-					move.add(currentMove);
 				}
+				moves.add(move);
 			}
-			game.add(move);
 		}
-		return game;
+		return moves;
 	}
 
 }

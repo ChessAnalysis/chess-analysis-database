@@ -52,7 +52,7 @@ public class InsertECOToDatabase {
 		insertOpening.setInt(5, 0);
 		insertOpening.addBatch();
 		
-		BufferedReader br = new BufferedReader(new FileReader("lib/pgn-extract/eco.pgn"));
+		BufferedReader br = new BufferedReader(new FileReader("lib/eco.pgn"));
 
 		try {
 			StringBuilder sb = new StringBuilder();

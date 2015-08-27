@@ -8,18 +8,18 @@ import jline.internal.Log;
 
 /**
  */
-public class POCBlunderMat {
+public class POCPercentageBestMove {
 
 	ListGames games;
 	GamesCollector collector;
-	private final int LIMIT = 1000;
+	private final int LIMIT = 50;
 	private final int OFFSET = 0;
 
 	public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
-		new POCBlunderMat();
+		new POCPercentageBestMove();
 	}
 
-	public POCBlunderMat() throws ClassNotFoundException, SQLException, IOException {
+	public POCPercentageBestMove() throws ClassNotFoundException, SQLException, IOException {
 		collector = new GamesCollector("diverse", LIMIT, OFFSET);
 		games = collector.getGames();
 

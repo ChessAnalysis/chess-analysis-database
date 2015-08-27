@@ -11,7 +11,24 @@ public class Game extends ArrayList<Move> implements Serializable {
 	
 	private int idGame;
 	private int totalPlyCount;
+	private String white, black;
 	
+	public String getWhite() {
+		return white;
+	}
+
+	public void setWhite(String white) {
+		this.white = white;
+	}
+
+	public String getBlack() {
+		return black;
+	}
+
+	public void setBlack(String black) {
+		this.black = black;
+	}
+
 	public int getIdGame() {
 		return idGame;
 	}
@@ -27,22 +44,15 @@ public class Game extends ArrayList<Move> implements Serializable {
 	public void setTotalPlyCount(int totalPlyCount) {
 		this.totalPlyCount = totalPlyCount;
 	}
-
-	public Game() {
-		super();
-	}
 	
-	public Game(int idGame) {
-		super();
-		this.idGame = idGame;
-	}
-	
-	public Game(int idGame, int totalPlyCount) {
+	public Game(int idGame, int totalPlyCount, String white, String black) {
 		super();
 		this.idGame = idGame;
 		this.totalPlyCount = totalPlyCount;
+		this.white = white;
+		this.black = black;
 	}
-	
+
 	public List<MoveDepth> getMoves(int i) {
 		Iterator<Move> it = this.iterator();
 		List<MoveDepth> moves = new ArrayList<MoveDepth>();
@@ -55,24 +65,30 @@ public class Game extends ArrayList<Move> implements Serializable {
 	
 	public Game getByPV(int pv) {
 		Iterator<Move> it = this.iterator();
-		Game rl = new Game(this.idGame, totalPlyCount);
+		List<Move> moves = new ArrayList<Move>();
 		
 		while(it.hasNext()) {
 			Move move =  it.next();
-			rl.add(move.getByPV(pv));
+			moves.add(move.getByPV(pv));
 		}
-		return rl;
+		
+		this.clear();
+		this.addAll(moves);
+		return this;
 	}
 	
 	public Game getByDepth(int pv) {
 		Iterator<Move> it = this.iterator();
-		Game rl = new Game(this.idGame, totalPlyCount);
+		List<Move> moves = new ArrayList<Move>();
 		
 		while(it.hasNext()) {
 			Move move =  it.next();
-			rl.add(move.getByDepth(pv));
+			moves.add(move.getByDepth(pv));
 		}
-		return rl;
+		
+		this.clear();
+		this.addAll(moves);
+		return this;
 	}
 	
 	public String toString() {

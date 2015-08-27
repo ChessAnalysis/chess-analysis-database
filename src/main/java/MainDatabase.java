@@ -10,6 +10,7 @@ import stockfish.POCEvolutionScore;
 import jline.console.ConsoleReader;
 import jline.internal.Log;
 import config.ConfigSQL;
+import database.GenerateECOFromDatabase;
 import database.GenerateFENFromDatabase;
 import database.InsertECOToDatabase;
 import database.InsertPGNToDatabase;
@@ -31,25 +32,22 @@ public class MainDatabase {
 	 */
 	public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException, InterruptedException, AmbiguousChessMoveException, IllegalMoveException {
 
-		ConfigSQL connexion= new ConfigSQL("diverse");
-		//new ParseDatabase(connexion);
+		ConfigSQL connexion= new ConfigSQL("localhost");
 		
-		// 1 - INSERT OPENING INTO DATABASE
-		/*Log.info("[1] INSERT OPENING INTO DATABASE");
+		/*Log.info("[1] Insert Opening into database");
 		new InsertECOToDatabase(connexion);*/
 		
-		// 2 - GENERATE MOVES ECO FROM DATABASE
-		//new GenerateECOFromDatabase(connexion);
+		/*Log.info("[2] Generate MoveECO from Opening table");
+		new GenerateECOFromDatabase(connexion);*/
 		
-		// 3 - INSERT PGN FILES
-		/*Log.info("Insertion des parties PGN dans la base de données");
+		/*Log.info("[3] Insert Game into database from pgn/games.pgn");
 		String[] filesName;
 		File[] files;
 
-		filesName = new File("resources/tmp2").list();
+		filesName = new File("pgn").list();
 		files = new File[filesName.length];
 		for(int i = 0; i < filesName.length; i++) {
-			files[i] = new File("resources/tmp2/" + filesName[i]);
+			files[i] = new File("pgn/" + filesName[i]);
 		}
 		for(File file: files) {
 			if (!file.exists() || file.isHidden() || file.getName().equals(".DS_Store")) {
@@ -60,78 +58,12 @@ public class MainDatabase {
 			}
 		} */
 		
+		 Log.info("[4] Generate Move and FEN into database from Game table");
+		new GenerateFENFromDatabase(connexion, 0); 
 		
+		/* Log.info("[5] Analyse fen/output with Igrida and Stockfish chess engine"); */
 		
-		// 4 - GENERATE MOVES FROM DATABASE
-		//new GenerateFENFromDatabase(connexion, 0);
+		/* Log.info("[6] Add log analyse to FEN with mysql script"); */
 		
-		// 5 - UPDATE FEN
-		//new UpdateFENFromFile(connexion);
-		
-		// 6 - ANALYSE DATABASE
-		//new ParseDatabase(connexion);
-		
-		//ConsoleReader reader = new ConsoleReader();
-		//PrintWriter out = new PrintWriter(reader.getOutput());
-		//out.print("Quel traitement ?\n[1] Insert Database\n[2] Chess Analysis\n");
-		/*String line;
-		while ((line = reader.readLine("> ")) != null) {
-			switch(line) {
-			case "1" :
-				// INSERT OPENINGS
-				Log.info("Insertion des codes ECO dans la base de données");
-				//new InsertECOToDatabase(connexion);
-
-				// INSERT PGN FILES
-				Log.info("Insertion des parties PGN dans la base de données");
-				String[] filesName;
-				File[] files;
-
-				filesName = new File("resources/tmp2").list();
-				files = new File[filesName.length];
-				for(int i = 0; i < filesName.length; i++) {
-					files[i] = new File("resources/tmp2/" + filesName[i]);
-				}
-				for(File file: files) {
-					if (!file.exists() || file.isHidden() || file.getName().equals(".DS_Store")) {
-						Log.warn("Le fichier " + file.getName() + " n'existe pas.");
-					} else {
-						Log.info("> " + file.getAbsolutePath());
-						new InsertPGNToDatabase(file.getAbsolutePath(), connexion);
-					}
-				} 
-				break;
-			case "2" :
-				//new StockfishAnalyze(connexion);
-				break;
-			}
-		}*/
-		
-		/*int MIN = 0;
-		int MAX = 1;
-		for(int i = MIN; i < MAX; i++) {
-			new GenerateFENFromDatabase(connexion, i);
-		}*/
-		
-		
-		//new InsertPGNToDatabase(new File("./resources/politcup15.pgn").getAbsolutePath(), connexion);
-		//new GenerateFENFromDatabase(connexion, 0);
-		//new UpdateFENFromFile(connexion);
-		//new AnalyseFromDatabase();
-		//new ParseDatabase(connexion);
-		
-		String[] filesName = new File("/Users/fesnault/Documents/FEN").list();
-		File[] files = new File[filesName.length];
-		for(int i = 0; i < filesName.length; i++) {
-			files[i] = new File("/Users/fesnault/Documents/FEN/" + filesName[i]);
-		}
-		for(File file: files) {
-			if (!file.exists() || file.isHidden() || file.getName().equals(".DS_Store")) {
-				Log.warn("Le fichier " + file.getName() + " n'existe pas.");
-			} else {
-				Log.info("> " + file.getAbsolutePath());
-				new UpdateFENFromFile(file.getAbsolutePath(), connexion);
-			}
-		} 
 	}
 }

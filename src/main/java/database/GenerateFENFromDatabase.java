@@ -7,7 +7,9 @@ import ictk.boardgame.chess.ChessBoard;
 import ictk.boardgame.chess.io.FEN;
 import ictk.boardgame.chess.io.SAN;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -16,6 +18,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import com.google.common.io.Files;
 
 import jline.internal.Log;
 import config.ConfigSQL;
@@ -45,8 +49,8 @@ public class GenerateFENFromDatabase {
 		this.connexion = DriverManager.getConnection(config.getUrl() + config.getDb() + "?user=" + config.getUser() + "&password=" + config.getPass() + "&rewriteBatchedStatements=true");
 		this.connexion.setAutoCommit(true);
 		Statement stmt = connexion.createStatement();
-		stmt.execute("ALTER TABLE Move ENABLE KEYS");
-		stmt.execute("SET GLOBAL FOREIGN_KEY_CHECKS=1");
+		stmt.execute("ALTER TABLE Move DISABLE KEYS");
+		stmt.execute("SET GLOBAL FOREIGN_KEY_CHECKS=0");
 		stmt.close();
 		initB();
 	}
@@ -144,9 +148,15 @@ public class GenerateFENFromDatabase {
 		String token;
 		String currentFEN;
 		
+		StringBuilder sb = new StringBuilder();
+		
 		ResultSet rs = st.executeQuery("select id, movesSAN from Game");
 		while (rs.next()) {
 			count++;
+			if((count%500)==0) {
+				Files.append(sb, new File("fen/toAnalyse.txt"), Charset.defaultCharset());
+				sb.setLength(0);
+			}
 			if((count%10000)==0) {
 				System.out.println(count + "...");
 				insertMove.executeBatch();
@@ -164,27 +174,29 @@ public class GenerateFENFromDatabase {
 					move = san.stringToMove(board, token);
 					board.playMove(move);
 					currentFEN = fen.boardToString(board);
+					sb.append(currentFEN + "\n");
+					
 					insertFEN.setString(1, currentFEN);
 					insertFEN.addBatch();
-					insertFEN.executeBatch();
 					
 					insertMove.setInt(1, rs.getInt(1));
 					insertMove.setInt(2, halfMove++);
 					insertMove.setString(3, token);
 					insertMove.setString(4, currentFEN);
-					
 					insertMove.addBatch();
 				}
 			}
 		}
 		
+		Files.append(sb, new File("fen/toAnalyse.txt"), Charset.defaultCharset());
+		
 		System.out.println("Parsed in " + ((System.nanoTime() - startTimeParsed)/1000000) + " ms.");
 		
 		startTimeParsed = System.nanoTime();
-		insertMove.executeBatch();
-		insertMove.close();
 		insertFEN.executeBatch();
 		insertFEN.close();
+		insertMove.executeBatch();
+		insertMove.close();
 		connexion.close();
 		
 		System.out.println("Inserted in " + ((System.nanoTime() - startTimeParsed)/1000000) + " ms.");

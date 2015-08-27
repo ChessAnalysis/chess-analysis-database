@@ -52,16 +52,17 @@ public class GenerateECOFromDatabase {
 	 * @throws IllegalMoveException
 	 */
 	public void init() throws IOException, InterruptedException, SQLException, AmbiguousChessMoveException, IllegalMoveException {
-
-		
-		
 		ChessBoard board;
 		SAN san = new SAN();
 		FEN fen = new FEN();
 		Move move = null;
 		
-		PreparedStatement selectFEN = connexion.prepareStatement("SELECT id FROM FEN WHERE fen = ? LIMIT 1");
 		PreparedStatement insertMove = connexion.prepareStatement("INSERT INTO MoveECO (idECO, halfMove, move, idFEN) VALUES (?, ?, ?, ?)");
+		
+		Statement stmt = connexion.createStatement();
+		stmt.execute("ALTER TABLE MoveECO DISABLE KEYS");
+		stmt.execute("SET GLOBAL FOREIGN_KEY_CHECKS=0");
+		stmt.close();
 		
 		Statement st = connexion.createStatement();
 		
@@ -91,15 +92,13 @@ public class GenerateECOFromDatabase {
 				if(!token.contains(".")) {
 					move = san.stringToMove(board, token);
 					board.playMove(move);
+					currentFEN = fen.boardToString(board);
+					
+					insertMove.setInt(1, rs.getInt(1));
 					insertMove.setInt(2, halfMove++);
 					insertMove.setString(3, token);
-					currentFEN = fen.boardToString(board);
-					selectFEN.setString(1, currentFEN);
-					ResultSet rs2 = selectFEN.executeQuery();
-					while (rs2.next()) {
-						insertMove.setInt(4, rs2.getInt(1));
-					}
-					insertMove.setInt(1, rs.getInt(1));
+					insertMove.setString(4, currentFEN);
+					
 					insertMove.addBatch();
 				}
 			}
@@ -108,8 +107,6 @@ public class GenerateECOFromDatabase {
 		System.out.println("Parsed in " + ((System.nanoTime() - startTimeParsed)/1000000) + " ms.");
 		
 		startTimeParsed = System.nanoTime();
-		selectFEN.executeBatch();
-		selectFEN.close();
 		insertMove.executeBatch();
 		insertMove.close();
 		connexion.commit();

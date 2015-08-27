@@ -1,4 +1,4 @@
-package stockfish;
+package POC;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,16 +58,18 @@ public class GamesCollector {
 		connexion.setAutoCommit(true);
 
 		ListGames games = new ListGames();
-		PreparedStatement selectGames = connexion.prepareStatement("SELECT g.id, g.totalPlyCount, p1.name, g.whiteElo, p2.name, g.blackElo FROM Game g, Player p1, Player p2 WHERE g.id < 50000 AND g.whiteElo > 2500 AND g.blackElo > 2500 AND g.whiteId = p1.id AND g.blackId = p2.id LIMIT " + limit + " OFFSET " + offset);
+		PreparedStatement selectGames = connexion.prepareStatement("SELECT g.id, g.totalPlyCount, p1.name, g.whiteElo, p2.name, g.blackElo, g.movesUCI, o.nbMoves FROM Game g, Player p1, Player p2, Opening o WHERE o.id = g.ecoId AND g.id < 50000 AND g.whiteElo > 2500 AND g.blackElo > 2500 AND g.whiteId = p1.id AND g.blackId = p2.id LIMIT " + limit + " OFFSET " + offset);
 
 		ResultSet rs = selectGames.executeQuery();
 		Log.info("SELECT GAMES");
 		while (rs.next()) {
 			int id = rs.getInt(1);
 			int totalPlyCount = rs.getInt(2);
+			int totalPlyOpeningCount = rs.getInt(8);
 			String white = rs.getString(3) + " (" + rs.getInt(4) + ")";
 			String black = rs.getString(5) + " (" + rs.getInt(6) + ")";
-			Game game = new Game(id, totalPlyCount, white, black);
+			String movesUCI = rs.getString(7);
+			Game game = new Game(id, totalPlyCount, totalPlyOpeningCount, white, black, movesUCI);
 			game.addAll(addMoves(id, totalPlyCount));
 			Log.info(id);
 			games.put(id, game);
@@ -109,7 +111,7 @@ public class GamesCollector {
 						move.add(new MoveDepth(false));
 					} else {
 						String[] split = lines[i].trim().split(" ");
-						Log.info(lines[i]);
+						//Log.info(lines[i]);
 						MoveDepth currentMove = new MoveDepth(Integer.valueOf(split[2]), Integer.valueOf(split[6]), Integer.valueOf(split[9]));
 						if(split[8].equals("mate")) {
 							currentMove.setMate(true);

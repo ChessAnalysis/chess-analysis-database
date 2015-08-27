@@ -1,4 +1,4 @@
-package stockfish;
+package POC;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class Move extends ArrayList<MoveDepth> implements Serializable {
 	public Move(String move, int halfMove, String FEN) {
 		super();
 		this.move = move;
-		this.halfMove = halfMove;
+		this.halfMove = halfMove+1; // Because registred ply in database begins from 0
 		this.FEN = FEN;
 	}
 	

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 
-import stockfish.POCEvolutionScore;
+import POC.POCEvolutionScore;
 import jline.console.ConsoleReader;
 import jline.internal.Log;
 import config.ConfigSQL;

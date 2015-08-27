@@ -1,4 +1,4 @@
-package stockfish;
+package POC;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,8 +11,26 @@ public class Game extends ArrayList<Move> implements Serializable {
 	
 	private int idGame;
 	private int totalPlyCount;
+	private int totalPlyOpeningCount;
 	private String white, black;
+	private String movesUCI;
 	
+	public int getTotalPlyOpeningCount() {
+		return totalPlyOpeningCount;
+	}
+
+	public void setTotalPlyOpeningCount(int totalPlyOpeningCount) {
+		this.totalPlyOpeningCount = totalPlyOpeningCount;
+	}
+
+	public String getMovesUCI() {
+		return movesUCI;
+	}
+
+	public void setMovesUCI(String movesUCI) {
+		this.movesUCI = movesUCI;
+	}
+
 	public String getWhite() {
 		return white;
 	}
@@ -45,12 +63,14 @@ public class Game extends ArrayList<Move> implements Serializable {
 		this.totalPlyCount = totalPlyCount;
 	}
 	
-	public Game(int idGame, int totalPlyCount, String white, String black) {
+	public Game(int idGame, int totalPlyCount, int totalPlyOpeningCount, String white, String black, String movesUCI) {
 		super();
 		this.idGame = idGame;
 		this.totalPlyCount = totalPlyCount;
+		this.totalPlyOpeningCount = totalPlyOpeningCount;
 		this.white = white;
 		this.black = black;
+		this.movesUCI = movesUCI;
 	}
 
 	public List<MoveDepth> getMoves(int i) {

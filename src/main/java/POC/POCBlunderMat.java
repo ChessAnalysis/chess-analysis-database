@@ -1,4 +1,4 @@
-package stockfish;
+package POC;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -12,7 +12,7 @@ public class POCBlunderMat {
 
 	ListGames games;
 	GamesCollector collector;
-	private final int LIMIT = 1000;
+	private final int LIMIT = 500;
 	private final int OFFSET = 0;
 
 	public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {

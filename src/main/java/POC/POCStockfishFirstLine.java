@@ -11,19 +11,15 @@ import jline.internal.Log;
  */
 public class POCStockfishFirstLine {
 
-	ListGames games;
-	GamesCollector collector;
-	private final int LIMIT = 500;
-	private final int OFFSET = 0;
+	static ListGames games;
+	static GamesCollector collector;
+	private final static int LIMIT = 500;
+	private final static int OFFSET = 0;
 
 	public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
-		new POCStockfishFirstLine();
-	}
-
-	public POCStockfishFirstLine() throws ClassNotFoundException, SQLException, IOException {
 		collector = new GamesCollector("diverse", LIMIT, OFFSET);
 		games = collector.getGames();
-
+		
 		Set<Integer> keys = games.keySet();
 		Log.info(keys);
 		Iterator<Integer> itKeys = keys.iterator();
@@ -32,13 +28,11 @@ public class POCStockfishFirstLine {
 			Integer idGame = itKeys.next();
 			Game game = games.get(idGame);
 			Game game_d20 = game.getByDepth(20);
-			analyseBlunderMat(idGame, game_d20, 20);
+			analyseStockfishFirstLine(game_d20);
 		}
-
-		System.exit(0);
 	}
 
-	private void analyseBlunderMat(int idGame, Game game, int depth) throws IOException {
+	static void analyseStockfishFirstLine(Game game) throws IOException {
 
 		Iterator<Move> it = game.iterator();
 		String movesUCIALL = "{ ";

@@ -25,16 +25,12 @@ import jline.internal.Log;
  */
 public class POCEvolutionScore {
 
-	ListGames games;
-	GamesCollector collector;
-	private final int LIMIT = 10;
-	private final int OFFSET = 0;
+	private static ListGames games;
+	private static GamesCollector collector;
+	private static final int LIMIT = 10;
+	private static final int OFFSET = 0;
 
 	public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
-		new POCEvolutionScore();
-	}
-
-	public POCEvolutionScore() throws ClassNotFoundException, SQLException, IOException {
 		collector = new GamesCollector("diverse", LIMIT, OFFSET);
 		games = collector.getGames();
 
@@ -47,14 +43,12 @@ public class POCEvolutionScore {
 			for(int depth = 10; depth <= 20; depth++) {
 				Game game = games.get(idGame);
 				Game game_d = game.getByDepth(depth);
-				analyseScores(idGame, game_d, depth);
+				analyseEvolutionScore(game_d);
 			}
 		}
-
-		System.exit(0);
 	}
 
-	private void analyseScores(int idGame, Game game, int depth) throws IOException {
+	static void analyseEvolutionScore(Game game) throws IOException {
 
 		String SEPARATOR = "\t";
 		SEPARATOR = ",";
@@ -64,8 +58,6 @@ public class POCEvolutionScore {
 
 		int count = 0;
 		Integer previous = 0;
-
-
 
 		while(it.hasNext()) {
 			Move currentMove = it.next();
@@ -99,11 +91,10 @@ public class POCEvolutionScore {
 		}
 
 		Log.info(sb.toString());
-		String filename = "analyse_" + idGame;
-		Files.write(sb, new File("resources/depth/"+filename+"_d"+depth+".csv"), Charset.defaultCharset());
+		
+		String filename = "analyse_" + game.getIdGame();
+		Files.write(sb, new File("resources/evolutionScore/"+filename+".csv"), Charset.defaultCharset());
 
-		Log.info("Connexion with R engine... RUNNING");
-		Log.info(System.getProperty("java.library.path"));
 		Rengine re = Rengine.getMainEngine();
 		if(re == null)
 			re = new Rengine(new String[] {"--vanilla"}, false, null);
@@ -112,21 +103,18 @@ public class POCEvolutionScore {
 			Log.error("Cannot load R");
 			return;
 		}
-		Log.info("Connexion with R engine... OK\n");
 
 		re.eval("library(ggplot2)");
 		re.eval("library(plyr)");
 
-		re.eval("evaluations = read.csv(\"/Users/fesnault/git/chess-analysis-database/resources/depth/"+filename+"_d"+depth+".csv\", head=TRUE, sep=\",\")");
+		re.eval("evaluations = read.csv(\"/Users/fesnault/git/chess-analysis-database/resources/evolutionScore/"+filename+".csv\", head=TRUE, sep=\",\")");
 		re.eval("df1 <- data.frame(evaluations$Ply, evaluations$Score)");
-		re.eval("p1 = ggplot(df1, aes(evaluations$Ply, evaluations$Score)) + geom_line() + ggtitle(\"Depth " + depth + "\")");
-		re.eval("ggsave(p1, file=\"/Users/fesnault/git/chess-analysis-database/resources/depth/"+filename+"_d"+depth+".png\", width=10, height=10)");
-
-
+		re.eval("p1 = ggplot(df1, aes(evaluations$Ply, evaluations$Score)) + geom_line() + ggtitle(\"Game " + game.getIdGame() + "\")");
+		re.eval("ggsave(p1, file=\"/Users/fesnault/git/chess-analysis-database/resources/evolutionScore/"+filename+".png\", width=10, height=10)");
 
 	}
 
-	private Integer getEval(int count, int scoreResult) {
+	private static Integer getEval(int count, int scoreResult) {
 		if((count%2)==0) {
 			return -Integer.valueOf(scoreResult);
 		} else {
@@ -134,7 +122,7 @@ public class POCEvolutionScore {
 		}
 	}
 
-	private String getComment(Integer gain) {
+	private static String getComment(Integer gain) {
 		if(gain<-300) {
 			return "Gaffe";
 		} else if(gain<-100) {

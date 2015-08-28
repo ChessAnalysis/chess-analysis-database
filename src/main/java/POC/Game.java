@@ -84,31 +84,29 @@ public class Game extends ArrayList<Move> implements Serializable {
 	}
 	
 	public Game getByPV(int pv) {
+		Game clone = (Game) this.clone();
+		clone.clear();
 		Iterator<Move> it = this.iterator();
-		List<Move> moves = new ArrayList<Move>();
 		
 		while(it.hasNext()) {
 			Move move =  it.next();
-			moves.add(move.getByPV(pv));
+			clone.add(move.getByPV(pv));
 		}
 		
-		this.clear();
-		this.addAll(moves);
-		return this;
+		return clone;
 	}
 	
-	public Game getByDepth(int pv) {
+	public Game getByDepth(int depth) {
+		Game clone = (Game) this.clone();
+		clone.clear();
 		Iterator<Move> it = this.iterator();
-		List<Move> moves = new ArrayList<Move>();
 		
 		while(it.hasNext()) {
-			Move move =  it.next();
-			moves.add(move.getByDepth(pv));
+			Move move = it.next();
+			clone.add(move.getByDepth(depth));
 		}
 		
-		this.clear();
-		this.addAll(moves);
-		return this;
+		return clone;
 	}
 	
 	public String toString() {

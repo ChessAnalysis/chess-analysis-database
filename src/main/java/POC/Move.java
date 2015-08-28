@@ -51,30 +51,34 @@ public class Move extends ArrayList<MoveDepth> implements Serializable {
 	}
 
 	public Move getByPV(int pv) {
+		Move clone = (Move) this.clone();
+		clone.clear();
 		Iterator<MoveDepth> it = this.iterator();
-		Move rl = new Move();
 		
 		while(it.hasNext()) {
 			MoveDepth crtRow =  it.next();
 			if(crtRow.getMultipv() == pv) {
-				rl.add(crtRow);
+				clone.add(crtRow);
+				return clone;
 			}
 		}
-		return rl;
+		return clone;
 	}
 	
 	public Move getByDepth(int depth) {
+		Move clone = (Move) this.clone();
+		clone.clear();
 		Iterator<MoveDepth> it = this.iterator();
-		Move rl = new Move(move, halfMove, FEN);
 		
 		while(it.hasNext()) {
-			MoveDepth crtRow =  it.next();
+			MoveDepth crtRow = it.next();
 			if(crtRow.getDepth() == depth) {
-				rl.add(crtRow);
-				return rl;
+				clone.add(crtRow);
+				return clone;
 			}
 		}
-		return rl;
+
+		return clone;
 	}
 	
 	public String toString() {

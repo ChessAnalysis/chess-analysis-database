@@ -4,22 +4,19 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Set;
+
 import jline.internal.Log;
 
 /**
  */
 public class POCBlunderMat {
 
-	ListGames games;
-	GamesCollector collector;
-	private final int LIMIT = 500;
-	private final int OFFSET = 0;
+	private static ListGames games;
+	private static GamesCollector collector;
+	private static final int LIMIT = 500;
+	private static final int OFFSET = 0;
 
 	public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
-		new POCBlunderMat();
-	}
-
-	public POCBlunderMat() throws ClassNotFoundException, SQLException, IOException {
 		collector = new GamesCollector("diverse", LIMIT, OFFSET);
 		games = collector.getGames();
 
@@ -31,13 +28,11 @@ public class POCBlunderMat {
 			Integer idGame = itKeys.next();
 			Game game = games.get(idGame);
 			Game game_d20 = game.getByDepth(20);
-			analyseBlunderMat(idGame, game_d20, 20);
+			analyseBlunderMat(game_d20);
 		}
-
-		System.exit(0);
 	}
 
-	private void analyseBlunderMat(int idGame, Game game, int depth) throws IOException {
+	static void analyseBlunderMat(Game game) throws IOException {
 
 		Iterator<Move> it = game.iterator();
 		int totalPlyCount = game.getTotalPlyCount();
@@ -49,9 +44,7 @@ public class POCBlunderMat {
 				int currentPly = currentMove.getHalfMove();
 				if (currentMoveDepth.isMate()) {
 					if(totalPlyCount > (currentPly + (Math.abs(currentMoveDepth.getScore()))*2)) {
-						Log.info("Game " + game.getIdGame() + " en " + game.getTotalPlyCount() + " ply\n"
-								+ "Mat en #" + currentMoveDepth.getScore()*2 + " ply au coup  " + currentPly + "\n"
-										+ "[" + currentMove.getFEN()  + "] " + currentMoveDepth.getMoves());
+						Log.info("Move [" + (currentPly/2) + "/" + (totalPlyCount/2) +"] " + currentMove.getMove() + "\tMat en " + currentMoveDepth.getScore() + "\t" + currentMoveDepth.getMoves());
 					}
 				}
 			}

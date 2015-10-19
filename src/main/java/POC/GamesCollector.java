@@ -30,15 +30,15 @@ public class GamesCollector {
 		this.limit = limit;
 		this.offset = offset;
 
-		File f = new File("lib/persist/games" + limit + "_" + offset + ".dat");
+		/*File f = new File("lib/persist/games" + limit + "_" + offset + ".dat");
 		if(f.exists() && !f.isDirectory()) {
 			fileExists = true;
-		}
+		}*/
 	}
 
 	ListGames getGames() throws SQLException, ClassNotFoundException {
 
-		if(fileExists) {
+		/*if(fileExists) {
 			ListGames result = null;
 			try {
 				FileInputStream saveFile = new FileInputStream("lib/persist/games" + limit + "_" + offset + ".dat");
@@ -49,16 +49,19 @@ public class GamesCollector {
 				e.printStackTrace();
 			}
 			return result;
-		}
+		}*/
 
 		ConfigSQL config = new ConfigSQL(mysql_db);
 
 		Class.forName(config.getDriver());
 		connexion = DriverManager.getConnection(config.getUrl() + config.getDb() + "?user=" + config.getUser() + "&password=" + config.getPass() + "&rewriteBatchedStatements=true");
 		connexion.setAutoCommit(true);
+		
+		System.out.println(config.getUrl() + config.getDb() + "?user=" + config.getUser() + "&password=" + config.getPass() + "&rewriteBatchedStatements=true");
 
 		ListGames games = new ListGames();
-		PreparedStatement selectGames = connexion.prepareStatement("SELECT g.id, g.totalPlyCount, p1.name, g.whiteElo, p2.name, g.blackElo, g.movesUCI, o.nbMoves FROM Game g, Player p1, Player p2, Opening o WHERE o.id = g.ecoId AND g.id < 50000 AND g.whiteElo > 2500 AND g.blackElo > 2500 AND g.whiteId = p1.id AND g.blackId = p2.id LIMIT " + limit + " OFFSET " + offset);
+		//PreparedStatement selectGames = connexion.prepareStatement("SELECT g.id, g.totalPlyCount, p1.name, g.whiteElo, p2.name, g.blackElo, g.movesUCI, o.nbMoves FROM Game g, Player p1, Player p2, Opening o WHERE o.id = g.ecoId AND g.id < 50000 AND g.whiteElo > 2500 AND g.blackElo > 2500 AND g.whiteId = p1.id AND g.blackId = p2.id LIMIT " + limit + " OFFSET " + offset);
+		PreparedStatement selectGames = connexion.prepareStatement("SELECT g.id, g.totalPlyCount, p1.name, g.whiteElo, p2.name, g.blackElo, g.movesUCI, o.nbMoves FROM Game g, Player p1, Player p2, Opening o WHERE o.id = g.ecoId AND g.whiteId = p1.id AND g.blackId = p2.id LIMIT " + limit);
 
 		ResultSet rs = selectGames.executeQuery();
 		Log.info("SELECT GAMES");
@@ -71,7 +74,6 @@ public class GamesCollector {
 			String movesUCI = rs.getString(7);
 			Game game = new Game(id, totalPlyCount, totalPlyOpeningCount, white, black, movesUCI);
 			game.addAll(addMoves(id, totalPlyCount));
-			Log.info(id);
 			games.put(id, game);
 		}
 		

@@ -95,7 +95,7 @@ public class POCEvolutionScore {
 		String filename = "analyse_" + game.getIdGame();
 		Files.write(sb, new File("resources/evolutionScore/"+filename+".csv"), Charset.defaultCharset());
 
-		Rengine re = Rengine.getMainEngine();
+		/*Rengine re = Rengine.getMainEngine();
 		if(re == null)
 			re = new Rengine(new String[] {"--vanilla"}, false, null);
 
@@ -111,7 +111,7 @@ public class POCEvolutionScore {
 		re.eval("df1 <- data.frame(evaluations$Ply, evaluations$Score)");
 		re.eval("p1 = ggplot(df1, aes(evaluations$Ply, evaluations$Score)) + geom_line() + ggtitle(\"Game " + game.getIdGame() + "\")");
 		re.eval("ggsave(p1, file=\"/Users/fesnault/git/chess-analysis-database/resources/evolutionScore/"+filename+".png\", width=10, height=10)");
-
+		 */
 	}
 
 	private static Integer getEval(int count, int scoreResult) {

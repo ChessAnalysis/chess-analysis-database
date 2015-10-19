@@ -17,7 +17,7 @@ public class POCBlunderMat {
 	private static final int OFFSET = 0;
 
 	public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
-		collector = new GamesCollector("diverse", LIMIT, OFFSET);
+		collector = new GamesCollector("local3", LIMIT, OFFSET);
 		games = collector.getGames();
 
 		Set<Integer> keys = games.keySet();

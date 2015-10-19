@@ -4,7 +4,7 @@ public class ConfigSQL {
 	
 	private String url;
 
-	private String db = "chesstest3";
+	private String db = "chessdb";
 
 	private String driver = "com.mysql.jdbc.Driver";
 
@@ -13,10 +13,10 @@ public class ConfigSQL {
 	private String pass;
 
 	public ConfigSQL(String mode) {
-		if(mode.equals("local3")) {
+		if(mode.equals("local")) {
 			url = "jdbc:mysql://localhost/";
 			pass = "root";
-			db = "chesstest3";
+			db = "chessdb";
 		}
 	}
 

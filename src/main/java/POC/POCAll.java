@@ -18,11 +18,11 @@ public class POCAll {
 
 	private static ListGames games;
 	private static GamesCollector collector;
-	private static final int LIMIT = 500;
+	private static final int LIMIT = 10;
 	private static final int OFFSET = 0;
 
 	public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
-		collector = new GamesCollector("diverse", LIMIT, OFFSET);
+		collector = new GamesCollector("local", LIMIT, OFFSET);
 		games = collector.getGames();
 
 		Set<Integer> keys = games.keySet();
